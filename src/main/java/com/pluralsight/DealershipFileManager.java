@@ -9,10 +9,11 @@ import java.io.IOException;
 
 public class DealershipFileManager {
     String file = "dealership.csv";
-    Dealership dealership = null;
 
-    public void getDealership() {
+
+    public Dealership getDealership() {
         String line;
+        Dealership dealership = null;
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
             while ((line = bufferedReader.readLine()) != null) {
@@ -39,9 +40,10 @@ public class DealershipFileManager {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return dealership;
     }
     public void saveDealership(){
-        
+
     }
 }
 
