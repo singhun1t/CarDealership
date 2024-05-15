@@ -1,11 +1,13 @@
 package com.pluralsight;
 
+
 import java.util.ArrayList;
 import java.util.Scanner;
 
+
 public class UserInterface {
     Dealership dealership;
-
+    private ShoppingCart shoppingCart = new ShoppingCart();
 
     private void init(){
         DealershipFileManager loader = new DealershipFileManager();
@@ -17,10 +19,10 @@ public class UserInterface {
             System.out.println("No vehicles found");
             return;
         }
-        System.out.printf("%-15s %-15s %-20s %-20s %-15s %-17s %-13s %-15s %s\n",
+        System.out.printf("%-15s %-15s %-20s %-15s %-17s %-13s %-15s %-15s %s\n",
                 "VIN", "Year", "Make", "Model", "Type", "Color", "Mileage", "Price", "Dealership");
             for (Vehicle vehicle : vehiclesToDisplay){
-                System.out.printf("%-15d %-15d %-20s %-15s %-17s %-13s %-15d %-15d %s\n", vehicle.getVin(),vehicle.getYear(),
+                System.out.printf("%-15d %-15d %-20s %-15s %-17s %-13s %-15d %-15.2f %s\n", vehicle.getVin(),vehicle.getYear(),
                         vehicle.getMake(), vehicle.getModel(),vehicle.getVehicleType(), vehicle.getColor(), vehicle.getOdometer(),
                         vehicle.getPrice(), dealership.getName());
             }
@@ -66,7 +68,7 @@ public class UserInterface {
                     processGetByVehicleTypeRequest();
                     break;
                 case 7:
-                    processGetAllVehiclesRequest();
+                    processAllVehiclesRequest();
                     break;
                 case 8:
                     processAddVehicleRequest();
@@ -75,7 +77,7 @@ public class UserInterface {
                     processRemoveVehicleRequest();
                     break;
                 case 10:
-                    //to be finished
+                    processCheckoutRequest();
                     break;
                 case 11:
                     running = false;
@@ -84,34 +86,155 @@ public class UserInterface {
         }
     }
     public void processGetByPriceRequest(){
+        System.out.println("What is the minimum price you want to search by");
+        Scanner scanner = new Scanner(System.in);
+        double minPrice = scanner.nextDouble();
+        System.out.println("What is the maximum price you want to search by");
+        double maxPrice = scanner.nextDouble();
 
+        ArrayList<Vehicle> vehiclesByPrice = dealership.getVehiclesByPrice(minPrice,maxPrice);
+        displayVehicles(vehiclesByPrice);
     }
     public void processGetByMakeModelRequest(){
-
+        System.out.println("What is the Make of the vehicle you want to search for?");
+        Scanner scanner = new Scanner (System.in);
+        String make = scanner.nextLine();
+        System.out.println("What is the Model of the vehicle you want to search for?");
+        String model = scanner.nextLine();
+        ArrayList<Vehicle> makeAndModel = dealership.getVehiclesByMakeModel(make,model);
+        displayVehicles(makeAndModel);
     }
     public void processGetByYearRequest(){
-
+        System.out.println("What is the minimum year of the vehicle you want to search by?");
+        Scanner scanner = new Scanner(System.in);
+        int minYear = scanner.nextInt();
+        System.out.println("What is the latest year of the vehicle you want to search by?");
+        int maxYear = scanner.nextInt();
+        ArrayList<Vehicle> yearVehicle = dealership.getVehiclesByYear(minYear,maxYear);
+        displayVehicles(yearVehicle);
     }
     public void processGetByColorRequest(){
-
+        System.out.println("What color vehicle do you want to search by?");
+        Scanner scanner = new Scanner(System.in);
+        String userColor = scanner.nextLine();
+        ArrayList<Vehicle> colorVehicle = dealership.getVehiclesByColor(userColor);
+        displayVehicles(colorVehicle);
     }
     public void processGetByMileageRequest(){
-
+        System.out.println("What is the lowest Mileage of the Vehicle do you want to search by?");
+        Scanner scanner = new Scanner(System.in);
+        int minMile = scanner.nextInt();
+        System.out.println("What is the highest Mileage of the Vehicle you would like to search?");
+        int maxMile = scanner.nextInt();
+        ArrayList<Vehicle> mileageVehicle = dealership.getVehiclesByMileage(minMile,maxMile);
+        displayVehicles(mileageVehicle);
     }
     public void processGetByVehicleTypeRequest(){
-
+        System.out.println("What type of vehicle do you want to search by?");
+        Scanner scanner = new Scanner(System.in);
+        String vehicleType = scanner.nextLine();
+        ArrayList<Vehicle> typeVehicle = dealership.getVehiclesByType(vehicleType);
+        displayVehicles(typeVehicle);
     }
-    public void processGetAllVehiclesRequest(){
 
-    }
     public void processAddVehicleRequest(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("What is the vin of the Vehicle?");
+        int addVin = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println("What is the Year of the Vehicle?");
+        int addYear = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println("What is the make of the Vehicle?");
+        String addMake = scanner.nextLine();
+        System.out.println("What is the model of the Vehicle?");
+        String addModel = scanner.nextLine();
+        System.out.println("What type of vehicle is it?");
+        String addType = scanner.nextLine();
+        System.out.println("What color is the vehicle?");
+        String addColor = scanner.nextLine();
+        System.out.println("How many miles are on the odometer?");
+        int addOdometer = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println("What is the price you paid for your vehicle?");
+        double addPrice = scanner.nextDouble();
 
+         Vehicle newVehicle = new Vehicle(addVin,addYear,addMake,addModel,addType,addColor,addOdometer,addPrice);
+         dealership.addVehicle(newVehicle);
     }
     public void processRemoveVehicleRequest(){
+        Scanner scanner = new Scanner (System.in);
+        displayVehicles(dealership.getAllVehicles());
+        System.out.println("What is the vin number of the vehicle you want to remove?");
+        int vinToRemove = scanner.nextInt();
 
+        Vehicle vehicleRemoval = null;
+        for (Vehicle remove : dealership.getAllVehicles()){
+                if (remove.getVin() == vinToRemove){
+                    vehicleRemoval = remove;
+                    break;
+                }
+        }
+        if (vehicleRemoval!=null){
+            dealership.removeVehicle(vehicleRemoval);
+            System.out.println("Vehicle with Vin# " + vehicleRemoval.getVin() + "Has been removed");
+        }else{
+            System.out.println("Vehicle could not be found");
+        }
     }
     public void processAllVehiclesRequest(){
         ArrayList<Vehicle> allVehicles = dealership.getAllVehicles();
         displayVehicles(allVehicles);
+    }
+
+    public void processCheckoutRequest(){
+        Scanner scanner = new Scanner (System.in);
+
+        System.out.println("Available Vehicles you can add to your cart");
+        displayVehicles(dealership.getAllVehicles());
+
+        System.out.println("Enter vin number of the vehicle you want to add to the cart. Type 1 to checkout");
+        int userVin = scanner.nextInt();
+        scanner.nextLine();
+
+        while((userVin != 1)){
+            Vehicle userVehicle = null;
+            for(Vehicle v : dealership.getAllVehicles()){
+                if(v.getVin() == userVin){
+                    userVehicle = v;
+                    break;
+                }
+            }
+            if (userVehicle != null){
+                shoppingCart.addItem(userVehicle);
+                System.out.println("Vehicle has been added to cart");
+            }else{
+                System.out.println("invalid vin");
+            }
+            displayVehicles(dealership.getAllVehicles());
+
+            System.out.println("Enter vin number of the vehicle you want to add to the cart. Type 1 to checkout");
+            userVin = scanner.nextInt();
+            scanner.nextLine();
+        }
+        if (!shoppingCart.isEmpty()) {
+            System.out.println("\nItems in Your Cart:");
+            displayVehicles(shoppingCart.getItems());
+
+            double totalPrice = shoppingCart.returnTotalPrice();
+            System.out.printf("\nTotal Price: $%.2f\n", totalPrice);
+
+            System.out.print("Finish Purchase? Yes or No: ");
+            String confirmation = scanner.nextLine().toUpperCase();
+            if (confirmation.equalsIgnoreCase("Yes")) {
+
+                shoppingCart.clear();
+                System.out.println("Thank you for shopping");
+            } else {
+                System.out.println("Purchase has been canceled.");
+            }
+        } else {
+            System.out.println("Your cart is empty");
+        }
     }
 }
